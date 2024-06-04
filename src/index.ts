@@ -1,9 +1,11 @@
 import "dotenv/config";
 import app from "./app";
+import dbConnectionHandler from "./db/dbConnectionHandler";
 
 const PORT = process.env.PORT || 8080;
 
-// TODO: database connection here
+// Database connection here
+dbConnectionHandler();
 
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
