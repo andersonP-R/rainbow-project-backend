@@ -27,12 +27,14 @@ class UserController {
   async getUser(req: Request, res: Response) {
     const { id } = req.params;
 
+    console.log(req.uid);
+
     try {
       const user = await userService.getUser(id);
       if (!user)
-        return res
-          .status(400)
-          .json({ message: `User identify with id ${id} doesn't exists.` });
+        return res.status(400).json({
+          message: `Invalid token - user identify with id: ${id} doesn't exists.`,
+        });
 
       res.status(200).json(user);
     } catch (error) {
@@ -67,7 +69,25 @@ class UserController {
       res.status(201).json({ message: "Successfuly deleted!", user: result });
     } catch (error) {
       console.log(error);
-      res.status(500).json({ message: `Error deleting user` });
+      res.status(400).json({ message: `Error deleting user` });
+    }
+  }
+
+  async updateUser(req: Request, res: Response) {
+    const { body } = req;
+    const { id } = req.params;
+
+    try {
+      const result = await userService.updateUser(id, body);
+      if (!result)
+        return res
+          .status(400)
+          .json({ message: `User with id ${id} doesn't exists.` });
+
+      res.status(200).json({ message: "Successfuly updated!", user: result });
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ message: `Error updating user` });
     }
   }
 }

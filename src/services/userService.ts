@@ -9,10 +9,12 @@ import { initalData } from "../seed/seed-data";
 class UserService {
   /**
    * Get all users from db.
-   * @returns UserModel[]
+   * @returns
    */
   async getUsers() {
-    const users = await UserModel.findAll();
+    const users = await UserModel.findAll({
+      attributes: { exclude: ["password"] },
+    });
     return users;
   }
 
@@ -22,7 +24,9 @@ class UserService {
    * @returns
    */
   async getUser(id: string) {
-    const user = await UserModel.findByPk(id);
+    const user = await UserModel.findByPk(id, {
+      attributes: { exclude: ["password"] },
+    });
     return user;
   }
 
@@ -54,6 +58,20 @@ class UserService {
     const user = await UserModel.findByPk(id);
     if (!user) return;
     await user.destroy();
+    return user;
+  }
+
+  /**
+   * Delete an user.
+   * @param id
+   * @returns
+   */
+  async updateUser(id: string, body: IUser) {
+    const user = await UserModel.findByPk(id);
+
+    if (!user) return { message: `User ${body.email} doesn't exists.` };
+
+    await user.update(body);
     return user;
   }
 

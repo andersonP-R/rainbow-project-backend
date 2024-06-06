@@ -4,12 +4,13 @@
       "module": "commonjs",
       "outDir": "./dist",
       "rootDir": "./src",
+      "typeRoots": ["./src/types", "./node_modules/@types"],
       "strict": true,
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true
     },
-    "include": ["src"],
+    "include": ["src/types/express.d.ts","src"],
     "exclude": ["node_modules", "**/*.test.ts"]
   }
   
