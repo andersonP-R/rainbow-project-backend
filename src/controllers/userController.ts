@@ -6,15 +6,6 @@ import { IUser } from "../interfaces/IUser";
  * Users controller handler
  */
 class UserController {
-  async seed(req: Request, res: Response) {
-    try {
-      await userService.seed();
-      res.status(200).json({ message: "Done!" });
-    } catch (error) {
-      res.status(400).json({ message: error });
-    }
-  }
-
   async getUsers(req: Request, res: Response) {
     try {
       const users = await userService.getUsers();
@@ -27,7 +18,7 @@ class UserController {
   async getUser(req: Request, res: Response) {
     const { id } = req.params;
 
-    console.log(req.uid);
+    console.log("Authenticated user: ", req.user);
 
     try {
       const user = await userService.getUser(id);
@@ -44,12 +35,11 @@ class UserController {
   }
 
   async createUser(req: Request, res: Response) {
-    // const body: IUser = req.body;
     const { body } = req;
 
     try {
-      const result = await userService.createUser(body);
-      res.status(201).json(result);
+      const { user, token, message } = await userService.createUser(body);
+      res.status(201).json({ message, user, token });
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: `Error creating user` });
@@ -60,13 +50,15 @@ class UserController {
     const { id } = req.params;
 
     try {
-      const result = await userService.deleteUser(id);
-      if (!result)
+      const userDeleted = await userService.deleteUser(id);
+      if (!userDeleted)
         return res
           .status(400)
           .json({ message: `User with id ${id} doesn't exists.` });
 
-      res.status(201).json({ message: "Successfuly deleted!", user: result });
+      res
+        .status(201)
+        .json({ message: "Successfuly deleted!", user: userDeleted });
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: `Error deleting user` });
@@ -78,13 +70,13 @@ class UserController {
     const { id } = req.params;
 
     try {
-      const result = await userService.updateUser(id, body);
-      if (!result)
+      const user = await userService.updateUser(id, body);
+      if (!user)
         return res
           .status(400)
           .json({ message: `User with id ${id} doesn't exists.` });
 
-      res.status(200).json({ message: "Successfuly updated!", user: result });
+      res.status(200).json({ message: "Successfuly updated!", user });
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: `Error updating user` });

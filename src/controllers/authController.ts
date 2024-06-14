@@ -2,6 +2,7 @@ import { Response, Request } from "express";
 // import authService from "../services/authService";
 import UserModel from "../models/UserModel";
 import { generateJWT } from "../helpers/generate-jwt";
+import authService from "../services/authService";
 
 /**
  * Users controller handler
@@ -11,24 +12,20 @@ class AuthController {
     const { email, password: paramPass } = req.body;
 
     try {
-      const user = await UserModel.findOne({
-        where: {
-          email,
-        },
-      });
+      const userDB = await authService.signIn(email, paramPass);
+      const { token, user } = userDB;
 
       if (!user) {
         return res.status(400).json({ message: "User doesn't exists." });
       }
 
-      if (user.getDataValue("password") !== paramPass) {
+      if (user.password !== paramPass) {
         return res
           .status(400)
           .json({ message: "User email/password invalid." });
       }
 
-      const token = await generateJWT(user.getDataValue("id"));
-      const { password, ...rest } = user.dataValues;
+      const { password, ...rest } = user;
 
       res.status(200).json({
         user: rest,

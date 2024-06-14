@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
-import UserModel from "../models/UserModel";
+import prisma from "../lib/prisma";
 
 export const validateJWT = async (
   req: Request,
@@ -15,14 +15,16 @@ export const validateJWT = async (
 
   try {
     const { uid } = jwt.verify(token, process.env.JWTSECRET!) as jwt.JwtPayload;
-    const user = await UserModel.findByPk(uid);
+    const user = await prisma.user.findFirst({ where: { id: uid } });
     if (!user) {
       return res
         .status(400)
         .json({ message: `User with id: ${uid} doesn't exists.` });
     }
 
-    req.uid = uid;
+    const { password, ...userRest } = user;
+
+    req.user = userRest;
 
     next();
   } catch (error) {

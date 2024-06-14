@@ -1,7 +1,6 @@
-import { Model } from "sequelize";
-import UserModel from "../models/UserModel";
-import { IUser } from "../interfaces/IUser";
-import { initalData } from "../seed/seed-data";
+import { generateJWT } from "../helpers/generate-jwt";
+import prisma from "../lib/prisma";
+import type { User } from "@prisma/client";
 
 /**
  * User services handler
@@ -12,8 +11,13 @@ class UserService {
    * @returns
    */
   async getUsers() {
-    const users = await UserModel.findAll({
-      attributes: { exclude: ["password"] },
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
     });
     return users;
   }
@@ -24,8 +28,15 @@ class UserService {
    * @returns
    */
   async getUser(id: string) {
-    const user = await UserModel.findByPk(id, {
-      attributes: { exclude: ["password"] },
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        name: true,
+        email: true,
+        role: true,
+      },
     });
     return user;
   }
@@ -35,8 +46,8 @@ class UserService {
    * @param body
    * @returns
    */
-  async createUser(body: IUser) {
-    const isEmailInUse = await UserModel.findOne({
+  async createUser(body: User) {
+    const isEmailInUse = await prisma.user.findUnique({
       where: {
         email: body.email,
       },
@@ -44,9 +55,13 @@ class UserService {
 
     if (isEmailInUse) return { message: `Email ${body.email} in use` };
 
-    const user = UserModel.build(body);
-    await user.save();
-    return user;
+    const user = await prisma.user.create({
+      data: body,
+    });
+
+    const token = await generateJWT(user.id);
+
+    return { user, token };
   }
 
   /**
@@ -55,9 +70,11 @@ class UserService {
    * @returns
    */
   async deleteUser(id: string) {
-    const user = await UserModel.findByPk(id);
-    if (!user) return;
-    await user.destroy();
+    const user = await prisma.user.delete({
+      where: {
+        id,
+      },
+    });
     return user;
   }
 
@@ -66,22 +83,15 @@ class UserService {
    * @param id
    * @returns
    */
-  async updateUser(id: string, body: IUser) {
-    const user = await UserModel.findByPk(id);
+  async updateUser(id: string, body: User) {
+    const updateUser = await prisma.user.update({
+      where: {
+        id,
+      },
+      data: body,
+    });
 
-    if (!user) return { message: `User ${body.email} doesn't exists.` };
-
-    await user.update(body);
-    return user;
-  }
-
-  async seed() {
-    // const user = UserModel.build(initalData.users[0]);
-    // await user.save();
-    // for (let ele of initalData.users) {
-    //   const user = UserModel.build(ele);
-    //   await user.save();
-    // }
+    return updateUser;
   }
 }
 

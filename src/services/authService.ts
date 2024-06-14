@@ -1,23 +1,23 @@
 import { generateJWT } from "../helpers/generate-jwt";
-import UserModel from "../models/UserModel";
+import prisma from "../lib/prisma";
 
 class AuthService {
   /**
-   * Sign in method.
+   * Login method.
    * @returns
    */
   async signIn(email: string, pass: string) {
     // Check if the user exists
-    const user = await UserModel.findOne({
+    const user = await prisma.user.findUnique({
       where: {
         email,
       },
     });
 
-    if (!user) throw new Error();
+    if (!user) throw new Error("User doesn't exists");
 
     // Generate JWT token
-    const token = await generateJWT(user.getDataValue("id"));
+    const token = await generateJWT(user.id);
 
     return {
       user,
