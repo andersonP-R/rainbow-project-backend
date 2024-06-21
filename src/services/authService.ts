@@ -1,5 +1,6 @@
 import { generateJWT } from "../helpers/generate-jwt";
 import prisma from "../lib/prisma";
+import jwt from "jsonwebtoken";
 
 class AuthService {
   /**
@@ -23,6 +24,12 @@ class AuthService {
       user,
       token,
     };
+  }
+
+  async getSession(token: string) {
+    const { uid } = jwt.verify(token, process.env.JWTSECRET!) as jwt.JwtPayload;
+    const user = await prisma.user.findFirst({ where: { id: uid } });
+    return user;
   }
 }
 

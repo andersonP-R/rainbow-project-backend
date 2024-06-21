@@ -27,10 +27,21 @@ class AuthController {
 
       const { password, ...rest } = user;
 
-      res.status(200).json({
+      res.cookie("access_token", token, { httpOnly: true }).status(200).json({
         user: rest,
         token,
       });
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ message: error });
+    }
+  }
+
+  async getSession(req: Request, res: Response) {
+    const { token } = req.params;
+    try {
+      const user = await authService.getSession(token);
+      res.status(200).json(user);
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: error });

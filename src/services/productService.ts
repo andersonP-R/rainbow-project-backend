@@ -1,9 +1,24 @@
+import { ISearchProduct } from "../interfaces/ISearchProduct";
 import prisma from "../lib/prisma";
 
 class ProductService {
   async getProducts() {
-    const products = await prisma.product.findMany();
-    return products;
+    const products = await prisma.product.findMany({
+      include: {
+        ProductImage: {
+          take: 2,
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
+
+    const prodArray = products.map((prod) => ({
+      ...prod,
+      images: prod.ProductImage.map((img) => img.url),
+    }));
+    return prodArray;
   }
 
   async getProduct(slug: string) {

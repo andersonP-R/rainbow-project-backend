@@ -6,6 +6,6 @@ const router = Router();
 
 // USER ROUTES ("/api/products")
 router.get("/", ProductController.getProducts);
-router.get("/:id", ProductController.getProduct);
+router.get("/:slug", ProductController.getProduct);
 
 export default router;
