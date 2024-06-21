@@ -7,8 +7,8 @@ interface SeedProduct {
   slug: string;
   tags: string[];
   title: string;
-  type: ValidTypes;
-  gender: "men" | "women" | "kid" | "unisex";
+  type: string;
+  gender: string;
 }
 
 interface SeedUser {

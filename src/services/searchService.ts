@@ -1,4 +1,3 @@
-import type { Gender } from "@prisma/client";
 import prisma from "../lib/prisma";
 
 const prices = [
@@ -6,10 +5,10 @@ const prices = [
 ];
 
 class SearchService {
-  async getProducts(tag: string, gender: Gender, price: string) {
+  async getProducts(type: string, gender: string, price: string) {
     const castPrice = parseFloat(price);
 
-    if (!tag && !gender && !price) {
+    if (!type && !gender && !price) {
       const products = await prisma.product.findMany({
         include: {
           ProductImage: {
@@ -30,13 +29,34 @@ class SearchService {
 
     const products = await prisma.product.findMany({
       where: {
-        gender,
-
-        tags: {
-          has: tag ? tag : "shirt",
-        },
+        gender: gender ? gender : { in: ["men", "women", "kid", "unisex"] },
+        type: type ? type : { in: ["shirts", "hoodies", "hats"] },
 
         price: castPrice ? castPrice : { in: prices },
+      },
+      include: {
+        ProductImage: {
+          take: 2,
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
+
+    const prodArray = products.map((prod) => ({
+      ...prod,
+      images: prod.ProductImage.map((img) => img.url),
+    }));
+    return prodArray;
+  }
+
+  async getProductsByTerm(term: string) {
+    const products = await prisma.product.findMany({
+      where: {
+        slug: {
+          contains: term,
+        },
       },
       include: {
         ProductImage: {
