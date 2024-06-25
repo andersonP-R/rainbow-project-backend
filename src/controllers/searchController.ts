@@ -7,8 +7,6 @@ class SearchController {
     const type = req.query.type as string;
     const gender = req.query.gender as string;
 
-    // console.log(price, tag, gender);
-
     const querys = req.query;
 
     try {

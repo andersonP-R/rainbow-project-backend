@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { validateJWT } from "../middlewares/validate-jwt";
 import ProductController from "../controllers/productController";
 
 const router = Router();

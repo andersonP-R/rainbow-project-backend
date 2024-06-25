@@ -1,6 +1,5 @@
 import { Response, Request } from "express";
 import userService from "../services/userService";
-import { IUser } from "../interfaces/IUser";
 
 /**
  * Users controller handler

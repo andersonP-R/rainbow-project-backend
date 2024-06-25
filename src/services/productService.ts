@@ -1,4 +1,3 @@
-import { ISearchProduct } from "../interfaces/ISearchProduct";
 import prisma from "../lib/prisma";
 
 class ProductService {

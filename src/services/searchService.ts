@@ -6,7 +6,7 @@ const prices = [
 
 class SearchService {
   async getProducts(type: string, gender: string, price: string) {
-    const castPrice = parseFloat(price);
+    let castPrice = parseFloat(price);
 
     if (!type && !gender && !price) {
       const products = await prisma.product.findMany({
@@ -32,7 +32,7 @@ class SearchService {
         gender: gender ? gender : { in: ["men", "women", "kid", "unisex"] },
         type: type ? type : { in: ["shirts", "hoodies", "hats"] },
 
-        price: castPrice ? castPrice : { in: prices },
+        price: castPrice && castPrice !== 20 ? castPrice : { in: prices },
       },
       include: {
         ProductImage: {

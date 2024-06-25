@@ -1,7 +1,4 @@
 import { Response, Request } from "express";
-// import authService from "../services/authService";
-import UserModel from "../models/UserModel";
-import { generateJWT } from "../helpers/generate-jwt";
 import authService from "../services/authService";
 
 /**
@@ -41,7 +38,7 @@ class AuthController {
     const { token } = req.params;
     try {
       const user = await authService.getSession(token);
-      res.status(200).json(user);
+      res.status(200);
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: error });
