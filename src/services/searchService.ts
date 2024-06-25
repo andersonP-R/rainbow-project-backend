@@ -54,7 +54,7 @@ class SearchService {
   async getProductsByTerm(term: string) {
     const products = await prisma.product.findMany({
       where: {
-        slug: {
+        title: {
           contains: term,
         },
       },
